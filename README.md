@@ -1,2 +1,2 @@
-# Samadhan-2.0
+# BUG BUSTERS2.0
 new repo
