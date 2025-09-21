@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI JEE Prep Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e2e8f0;
+            color: #1a202c;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .top-nav-item.active {
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+
+        .top-nav-item.active .nav-icon {
+            color: #1d4ed8;
+        }
+
+        .loading-animation {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .chat-bubble.sent {
+            background-color: #4f46e5;
+            color: white;
+            align-self: flex-end;
+            border-radius: 1rem 1rem 0 1rem;
+        }
+
+        .chat-bubble.received {
+            background-color: #cbd5e1;
+            color: #1f2937;
+            align-self: flex-start;
+            border-radius: 1rem 1rem 1rem 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 flex flex-col h-screen">
+    <!-- Top Header Bar with Navigation -->
+    <header class="bg-white shadow-lg py-4 px-6 md:px-8 flex justify-between items-center rounded-b-2xl md:mx-4 relative">
+        <h1 class="text-xl md:text-3xl font-bold text-blue-700">JEE Prep AI</h1>
+
+        <!-- Desktop Navigation -->
+        <nav class="hidden md:flex flex-grow justify-center space-x-6">
+            <a href="#" onclick="showSection('dashboard', this)" data-section="dashboard"
+                class="top-nav-item flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 ease-in-out active">
+                <svg class="h-5 w-5 mr-1 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-6 4h6M3 6h18M12 2v20" />
+                </svg>
+                Dashboard
+            </a>
+            <a href="#" onclick="showSection('solver', this)" data-section="solver"
+                class="top-nav-item flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 ease-in-out">
+                <svg class="h-5 w-5 mr-1 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.252a1 1 0 00-.916 1.637l1.758 1.759a1 1 0 001.637-.916L17.817 4.25a1 1 0 00-1.258-1.258L8.228 9.252z" />
+                </svg>
+                AI Doubt Solver
+            </a>
+            <a href="#" onclick="showSection('quiz', this)" data-section="quiz"
+                class="top-nav-item flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 ease-in-out">
+                <svg class="h-5 w-5 mr-1 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                Adaptive Quiz
+            </a>
+            <a href="#" onclick="showSection('planner', this)" data-section="planner"
+                class="top-nav-item flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 ease-in-out">
+                <svg class="h-5 w-5 mr-1 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h.01M16 14h.01M21 21V6a2 2 0 00-2-2H5a2 2 0 00-2 2v15a2 2 0 002 2h14a2 2 0 002-2z" />
+                </svg>
+                Study Planner
+            </a>
+            <a href="#" onclick="showSection('alumni', this)" data-section="alumni"
+                class="top-nav-item flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 ease-in-out">
+                <svg class="h-5 w-5 mr-1 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-2 4L14 3m-2 15v-6m0 0a2 2 0 01-2-2V6a2 2 0 012-2h2a2 2 0 012 2v6a2 2 0 01-2 2h-2z" />
+                </svg>
+                Alumni Connect
+            </a>
+            <a href="#" onclick="showSection('community', this)" data-section="community"
+                class="top-nav-item flex items-center px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors duration-200 ease-in-out">
+                <svg class="h-5 w-5 mr-1 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V8a2 2 0 012-2h6a2 2 0 012 2z" />
+                </svg>
+                Peer Community
+            </a>
+        </nav>
+
+        <!-- Mobile Menu Button & User Profile -->
+        <div class="flex items-center space-x-4">
+            <button id="mobile-menu-btn" class="md:hidden p-2 text-gray-600 focus:outline-none">
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <span class="text-sm font-medium text-gray-600 hidden md:block">User Name</span>
+            <div class="h-10 w-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-bold">
+                U
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Dropdown -->
+    <nav id="mobile-menu" class="md:hidden bg-white shadow-lg py-4 px-6 absolute top-20 left-4 right-4 z-50 rounded-b-2xl transition-transform duration-300 ease-in-out transform scale-y-0 origin-top">
+        <div class="flex flex-col space-y-2">
+            <a href="#" onclick="showSection('dashboard', this); toggleMobileMenu();" data-section="dashboard"
+                class="top-nav-item flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                <svg class="h-5 w-5 mr-3 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-6 4h6M3 6h18M12 2v20" />
+                </svg>
+                Dashboard
+            </a>
+            <a href="#" onclick="showSection('solver', this); toggleMobileMenu();" data-section="solver"
+                class="top-nav-item flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                <svg class="h-5 w-5 mr-3 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9.252a1 1 0 00-.916 1.637l1.758 1.759a1 1 0 001.637-.916L17.817 4.25a1 1 0 00-1.258-1.258L8.228 9.252z" />
+                </svg>
+                AI Doubt Solver
+            </a>
+            <a href="#" onclick="showSection('quiz', this); toggleMobileMenu();" data-section="quiz"
+                class="top-nav-item flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                <svg class="h-5 w-5 mr-3 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+                Adaptive Quiz
+            </a>
+            <a href="#" onclick="showSection('planner', this); toggleMobileMenu();" data-section="planner"
+                class="top-nav-item flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                <svg class="h-5 w-5 mr-3 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h.01M16 14h.01M21 21V6a2 2 0 00-2-2H5a2 2 0 00-2 2v15a2 2 0 002 2h14a2 2 0 002-2z" />
+                </svg>
+                Study Planner
+            </a>
+            <a href="#" onclick="showSection('alumni', this); toggleMobileMenu();" data-section="alumni"
+                class="top-nav-item flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                <svg class="h-5 w-5 mr-3 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2h-2m-2 4L14 3m-2 15v-6m0 0a2 2 0 01-2-2V6a2 2 0 012-2h2a2 2 0 012 2v6a2 2 0 01-2 2h-2z" />
+                </svg>
+                Alumni Connect
+            </a>
+            <a href="#" onclick="showSection('community', this); toggleMobileMenu();" data-section="community"
+                class="top-nav-item flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors">
+                <svg class="h-5 w-5 mr-3 nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V8a2 2 0 012-2h6a2 2 0 012 2z" />
+                </svg>
+                Peer Community
+            </a>
+        </div>
+    </nav>
+
+
+    <!-- Main Content Area -->
+    <main class="flex-grow bg-white p-6 md:p-8 rounded-2xl md:mx-8 md:my-4 overflow-y-auto shadow-xl">
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="section">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">Performance Dashboard</h2>
+                <p class="text-gray-500 mb-8">
+                    Welcome back! Here's a snapshot of your progress and key metrics.
+                </p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-2xl shadow-lg transform transition-transform hover:scale-105">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-semibold text-white">Accuracy</h3>
+                            <svg class="h-8 w-8 text-white opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p class="text-4xl font-bold mt-2 text-white">78%</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-500 to-lime-600 p-6 rounded-2xl shadow-lg transform transition-transform hover:scale-105">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-semibold text-white">Avg. Time/Q</h3>
+                            <svg class="h-8 w-8 text-white opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <p class="text-4xl font-bold mt-2 text-white">1.5 min</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-yellow-500 to-orange-600 p-6 rounded-2xl shadow-lg transform transition-transform hover:scale-105">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-semibold text-white">Quizzes</h3>
+                            <svg class="h-8 w-8 text-white opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg>
+                        </div>
+                        <p class="text-4xl font-bold mt-2 text-white">42</p>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-500 to-pink-600 p-6 rounded-2xl shadow-lg transform transition-transform hover:scale-105">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xl font-semibold text-white">Concepts</h3>
+                            <svg class="h-8 w-8 text-white opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.405 9.475 5 8 5c-4 0-5.333 1.157-5.333 3.5S4 12 8 12h.024a.252.252 0 01.026.023A13.882 13.882 0 0112 16.5c4 0 5.333-1.157 5.333-3.5S16 9 12 9h-.024a.252.252 0 01-.026-.023A13.882 13.882 0 0112 6.253z" />
+                            </svg>
+                        </div>
+                        <p class="text-4xl font-bold mt-2 text-white">9</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-6 rounded-xl shadow-md mb-8">
+                    <h3 class="text-2xl font-semibold text-blue-600 mb-4">Your Weak Topics</h3>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center">
+                            <span class="bg-red-400 h-2 w-2 rounded-full mr-3"></span>
+                            Organic Chemistry: Reaction Mechanisms
+                        </li>
+                        <li class="flex items-center">
+                            <span class="bg-red-400 h-2 w-2 rounded-full mr-3"></span>
+                            Physics: Thermodynamics
+                        </li>
+                        <li class="flex items-center">
+                            <span class="bg-red-400 h-2 w-2 rounded-full mr-3"></span>
+                            Mathematics: Permutations & Combinations
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-6 rounded-xl shadow-md">
+                    <h3 class="text-2xl font-semibold text-blue-600 mb-4">Progress Trend</h3>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 h-64 flex items-center justify-center">
+                        <p class="text-gray-400">Graph of progress over time will appear here.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Doubt Solver Section -->
+        <section id="solver-section" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">AI Doubt Solver</h2>
+                <p class="text-gray-500 mb-8">
+                    Type your JEE problem or upload a picture, and our AI will provide a step-by-step solution.
+                </p>
+
+                <div class="bg-gray-50 p-6 rounded-xl shadow-md mb-6">
+                    <label for="question-input" class="block text-lg font-medium text-gray-700 mb-2">Your Question</label>
+                    <textarea id="question-input" rows="4"
+                        class="w-full p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        placeholder="Type your question here..."></textarea>
+                    <div class="flex items-center justify-center space-x-4 mt-4">
+                        <label for="image-upload" class="cursor-pointer bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition-colors">
+                            <input type="file" id="image-upload" class="hidden" accept="image/*">
+                            Upload Image
+                        </label>
+                        <button id="solve-btn"
+                            class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-colors">
+                            Solve Problem
+                        </button>
+                    </div>
+                </div>
+
+                <div id="solution-container" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-700">Solution</h3>
+                        <div id="loading-spinner" class="loading-animation hidden"></div>
+                    </div>
+                    <div id="solution-content">
+                        <!-- Solution will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Adaptive Quiz Section -->
+        <section id="quiz-section" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">Adaptive Quiz Engine</h2>
+                <p class="text-gray-500 mb-8">
+                    Take a quick quiz to test your knowledge. The questions will adapt to your performance.
+                </p>
+
+                <div id="quiz-start" class="text-center p-8 bg-gray-50 rounded-xl shadow-md">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Ready to start?</h3>
+                    <p class="text-gray-600 mb-6">This quiz contains 10 questions on a mix of JEE topics.</p>
+                    <button id="start-quiz-btn"
+                        class="bg-green-500 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-green-600 transition-colors">
+                        Start Quiz
+                    </button>
+                </div>
+
+                <div id="quiz-game" class="hidden">
+                    <div class="bg-gray-50 p-6 rounded-xl shadow-md mb-6">
+                        <p class="text-lg font-medium text-gray-700 mb-2">Question <span id="current-question-index">1</span> of <span id="total-questions">10</span></p>
+                        <div id="question-area" class="text-xl font-semibold text-gray-800 mb-4"></div>
+                        <div id="options-area" class="space-y-4"></div>
+                    </div>
+                    <button id="next-question-btn"
+                        class="w-full bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-colors hidden">
+                        Next Question
+                    </button>
+                    <div id="quiz-result" class="bg-green-100 p-6 rounded-xl text-center text-green-800 font-semibold hidden mt-4">
+                        You got it right!
+                    </div>
+                </div>
+
+                <div id="quiz-end" class="text-center p-8 bg-gray-50 rounded-xl shadow-md hidden">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Quiz Complete!</h3>
+                    <p class="text-gray-600 mb-6">You answered <span id="correct-count" class="font-bold text-green-600"></span> out of <span id="total-count" class="font-bold text-blue-600"></span> questions correctly.</p>
+                    <button id="retake-quiz-btn"
+                        class="bg-blue-500 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-600 transition-colors">
+                        Retake Quiz
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Study Planner Section -->
+        <section id="planner-section" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">Personalized Study Planner</h2>
+                <p class="text-gray-500 mb-8">
+                    Enter your study preferences, and we'll create a dynamic schedule for you.
+                </p>
+
+                <div class="bg-gray-50 p-6 rounded-xl shadow-md mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="exam-date" class="block text-sm font-medium text-gray-700 mb-1">Target Exam Date</label>
+                            <input type="date" id="exam-date"
+                                class="w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="study-hours" class="block text-sm font-medium text-gray-700 mb-1">Daily Study Hours</label>
+                            <input type="number" id="study-hours" min="1" max="12" value="4"
+                                class="w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Topics to Cover</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center text-gray-700">
+                                <input type="checkbox" name="topic" value="Physics" class="rounded text-blue-500 mr-2">
+                                Physics
+                            </label>
+                            <label class="flex items-center text-gray-700">
+                                <input type="checkbox" name="topic" value="Chemistry" class="rounded text-blue-500 mr-2">
+                                Chemistry
+                            </label>
+                            <label class="flex items-center text-gray-700">
+                                <input type="checkbox" name="topic" value="Mathematics" class="rounded text-blue-500 mr-2">
+                                Mathematics
+                            </label>
+                        </div>
+                    </div>
+                    <button id="generate-planner-btn"
+                        class="w-full mt-6 bg-blue-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-700 transition-colors">
+                        Generate Planner
+                    </button>
+                </div>
+
+                <div id="planner-output" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 hidden">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Your Study Plan</h3>
+                    <ul id="plan-list" class="space-y-4"></ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Alumni Connect Section -->
+        <section id="alumni-section" class="section hidden">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">Alumni Connect</h2>
+                <p class="text-gray-500 mb-8">
+                    Connect with successful JEE alumni and get expert advice on your preparation.
+                </p>
+                <div class="bg-gray-50 p-6 rounded-xl shadow-md mb-6">
+                    <label for="alumni-question" class="block text-lg font-medium text-gray-700 mb-2">Ask an Alumnus</label>
+                    <textarea id="alumni-question" rows="4" class="w-full p-3 rounded-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        placeholder="Type your question about strategy, resources, or anything else..."></textarea>
+                    <button id="alumni-ask-btn" class="w-full mt-4 bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:bg-blue-700 transition-colors">
+                        Ask Now
+                    </button>
+                </div>
+
+                <div id="alumni-response-container" class="bg-white p-6 rounded-xl shadow-md border border-gray-200 hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-700">Alumni Response</h3>
+                        <div id="alumni-loading-spinner" class="loading-animation hidden"></div>
+                    </div>
+                    <div id="alumni-response-content">
+                        <!-- Alumni response will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Peer Community Section -->
+        <section id="community-section" class="section hidden h-full">
+            <div class="max-w-4xl mx-auto flex flex-col h-full">
+                <h2 class="text-3xl font-bold text-blue-600 mb-6">Peer Community</h2>
+                <p class="text-gray-500 mb-4">
+                    Discuss problems and support your peers in a live chat.
+                </p>
+                <div id="chat-window" class="flex-grow bg-gray-50 p-6 rounded-xl shadow-inner overflow-y-auto flex flex-col space-y-4 mb-4">
+                    <!-- Chat messages will be rendered here -->
+                </div>
+                <div class="flex">
+                    <input type="text" id="chat-input" placeholder="Type your message..."
+                        class="flex-grow p-3 rounded-l-lg border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="chat-send-btn"
+                        class="bg-blue-600 text-white font-semibold py-3 px-6 rounded-r-lg shadow-lg hover:bg-blue-700 transition-colors">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const sections = ['dashboard', 'solver', 'quiz', 'planner', 'alumni', 'community'];
+        let currentQuizIndex = 0;
+        let correctAnswers = 0;
+
+        // Hardcoded mock questions for the quiz
+        const quizQuestions = [{
+            question: "What is the formula for the work done in a reversible isothermal expansion of an ideal gas?",
+            options: ["W = nRT ln($$V_2/V_1$$)", "W = -P($$V_2-V_1$$)", "W = nC_v($$T_2-T_1$$)", "W = nRT ln($$P_1/P_2$$)"],
+            answer: "W = nRT ln($$V_2/V_1$$)",
+            difficulty: "medium"
+        }, {
+            question: "If a body is thrown vertically upwards with a velocity $$v$$ from the ground, what is the maximum height it will reach?",
+            options: ["$$v/g$$", "$$v^2/g$$", "$$v^2/2g$$", "$$2v/g$$"],
+            answer: "$$v^2/2g$$",
+            difficulty: "easy"
+        }, {
+            question: "Which of the following is an example of an electrophile?",
+            options: ["$H_2O$", "$NH_3$", "$BF_3$", "$CH_3-CH_3$"],
+            answer: "$BF_3$",
+            difficulty: "easy"
+        }, {
+            question: "What is the value of the integral $$\int_{0}^{\pi} \\sin(x) dx$$?",
+            options: ["-1", "0", "1", "2"],
+            answer: "2",
+            difficulty: "medium"
+        }, {
+            question: "What is the common name for the compound $CH_3CH_2OH$?",
+            options: ["Methanol", "Propanol", "Ethanol", "Butanol"],
+            answer: "Ethanol",
+            difficulty: "easy"
+        }];
+
+        // Mock chat messages for peer community
+        let chatMessages = [{
+            user: "Peer 1",
+            text: "Does anyone have a good trick for remembering the d-block elements?",
+            timestamp: new Date().toLocaleTimeString()
+        }, {
+            user: "Peer 2",
+            text: "I used a mnemonic: 'Scary Tigers Victoriously Captured Men From Copper Zone!'",
+            timestamp: new Date().toLocaleTimeString()
+        }, ];
+
+        // Function to show a specific section and hide others
+        function showSection(sectionName, element) {
+            sections.forEach(s => {
+                const sectionEl = document.getElementById(`${s}-section`);
+                if (sectionEl) {
+                    if (s === sectionName) {
+                        sectionEl.classList.remove('hidden');
+                    } else {
+                        sectionEl.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Update active class on nav items
+            const navItems = document.querySelectorAll('.top-nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            } else {
+                // Fallback for initial load
+                const defaultItem = document.querySelector(`[data-section="${sectionName}"]`);
+                if (defaultItem) defaultItem.classList.add('active');
+            }
+
+            // Rerender math after section change
+            if (window.MathJax) {
+                window.MathJax.typeset();
+            }
+            if (sectionName === 'community') {
+                renderChatMessages();
+            }
+        }
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', toggleMobileMenu);
+
+        function toggleMobileMenu() {
+            mobileMenu.classList.toggle('scale-y-0');
+            mobileMenu.classList.toggle('scale-y-100');
+        }
+
+        // AI Doubt Solver Logic
+        const solveBtn = document.getElementById('solve-btn');
+        const questionInput = document.getElementById('question-input');
+        const solutionContainer = document.getElementById('solution-container');
+        const solutionContent = document.getElementById('solution-content');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        solveBtn.addEventListener('click', () => {
+            const questionText = questionInput.value.trim();
+            if (!questionText) return;
+
+            solutionContainer.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+
+            // Simulate API call to the backend
+            setTimeout(() => {
+                loadingSpinner.classList.add('hidden');
+                solutionContainer.classList.remove('hidden');
+
+                // Mock solution with LaTeX formatting
+                const solutionHtml = `
+                    <p class="text-sm text-gray-500 mb-2">Solution powered by Gemini</p>
+                    <p class="text-base font-medium text-gray-800">For the problem: "$$${questionText}$$"</p>
+                    <div class="mt-4 prose">
+                        <p>Let's solve this step by step:</p>
+                        <ol class="list-decimal list-inside space-y-2">
+                            <li>
+                                **Step 1: Understand the principles.**
+                                The problem involves $$${questionText}$$ which requires understanding the fundamental principle of...
+                            </li>
+                            <li>
+                                **Step 2: Apply the relevant formula.**
+                                We will use the formula $$E = mc^2$$ to calculate...
+                            </li>
+                            <li>
+                                **Step 3: Perform the calculation.**
+                                $$${questionText}$$ implies that a logical sequence of calculations must be performed. The result is...
+                            </li>
+                            <li>
+                                **Final Answer:**
+                                The final answer is **$${Math.random() > 0.5 ? '2.5 \\times 10^5' : '4.2 \\times 10^{-3}'}$$**.
+                            </li>
+                        </ol>
+                    </div>
+                `;
+                solutionContent.innerHTML = solutionHtml;
+                if (window.MathJax) {
+                    window.MathJax.typeset();
+                }
+            }, 2000);
+        });
+
+        // Adaptive Quiz Logic
+        const startQuizBtn = document.getElementById('start-quiz-btn');
+        const quizStart = document.getElementById('quiz-start');
+        const quizGame = document.getElementById('quiz-game');
+        const quizEnd = document.getElementById('quiz-end');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
+        const retakeQuizBtn = document.getElementById('retake-quiz-btn');
+        const questionArea = document.getElementById('question-area');
+        const optionsArea = document.getElementById('options-area');
+        const quizResult = document.getElementById('quiz-result');
+        const correctCountEl = document.getElementById('correct-count');
+        const totalCountEl = document.getElementById('total-questions');
+
+        startQuizBtn.addEventListener('click', startQuiz);
+        nextQuestionBtn.addEventListener('click', nextQuestion);
+        retakeQuizBtn.addEventListener('click', startQuiz);
+
+        function startQuiz() {
+            quizStart.classList.add('hidden');
+            quizEnd.classList.add('hidden');
+            quizGame.classList.remove('hidden');
+            nextQuestionBtn.classList.add('hidden');
+            quizResult.classList.add('hidden');
+
+            currentQuizIndex = 0;
+            correctAnswers = 0;
+            totalCountEl.textContent = quizQuestions.length;
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            if (currentQuizIndex >= quizQuestions.length) {
+                endQuiz();
+                return;
+            }
+
+            const q = quizQuestions[currentQuizIndex];
+            document.getElementById('current-question-index').textContent = currentQuizIndex + 1;
+            questionArea.innerHTML = q.question;
+            optionsArea.innerHTML = '';
+            quizResult.classList.add('hidden');
+            nextQuestionBtn.classList.add('hidden');
+
+            q.options.forEach(option => {
+                const button = document.createElement('button');
+                button.innerHTML = option;
+                button.className = 'w-full p-3 text-left rounded-lg border border-gray-300 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500';
+                button.onclick = () => checkAnswer(button, option, q.answer);
+                optionsArea.appendChild(button);
+            });
+
+            if (window.MathJax) {
+                window.MathJax.typeset();
+            }
+        }
+
+        function checkAnswer(button, selectedOption, correctAnswer) {
+            const allButtons = optionsArea.querySelectorAll('button');
+            allButtons.forEach(btn => btn.disabled = true);
+
+            if (selectedOption === correctAnswer) {
+                button.classList.add('bg-green-100', 'border-green-400');
+                quizResult.textContent = 'Correct!';
+                quizResult.classList.remove('hidden', 'bg-red-100', 'text-red-800');
+                quizResult.classList.add('bg-green-100', 'text-green-800');
+                correctAnswers++;
+            } else {
+                button.classList.add('bg-red-100', 'border-red-400');
+                quizResult.innerHTML = `Incorrect. The correct answer was: <strong>${correctAnswer}</strong>`;
+                quizResult.classList.remove('hidden', 'bg-green-100', 'text-green-800');
+                quizResult.classList.add('bg-red-100', 'text-red-800');
+            }
+
+            nextQuestionBtn.classList.remove('hidden');
+            if (window.MathJax) {
+                window.MathJax.typeset();
+            }
+        }
+
+        function nextQuestion() {
+            currentQuizIndex++;
+            loadQuestion();
+        }
+
+        function endQuiz() {
+            quizGame.classList.add('hidden');
+            quizEnd.classList.remove('hidden');
+            correctCountEl.textContent = correctAnswers;
+            totalCountEl.textContent = quizQuestions.length;
+        }
+
+        // Study Planner Logic
+        const generatePlannerBtn = document.getElementById('generate-planner-btn');
+        const plannerOutput = document.getElementById('planner-output');
+        const planList = document.getElementById('plan-list');
+
+        generatePlannerBtn.addEventListener('click', () => {
+            const examDate = document.getElementById('exam-date').value;
+            const studyHours = document.getElementById('study-hours').value;
+            const topics = Array.from(document.querySelectorAll('input[name="topic"]:checked'))
+                .map(cb => cb.value);
+
+            if (!examDate || !studyHours || topics.length === 0) {
+                // Use a custom message box instead of alert()
+                showCustomMessage("Please fill out all fields.");
+                return;
+            }
+
+            plannerOutput.classList.remove('hidden');
+            planList.innerHTML = '';
+
+            const today = new Date();
+            const examDay = new Date(examDate);
+            const diffTime = Math.abs(examDay - today);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const totalTopics = topics.length;
+
+            if (diffDays <= 0) {
+                showCustomMessage("Please select a future date for the exam.");
+                plannerOutput.classList.add('hidden');
+                return;
+            }
+
+            const daysPerTopic = Math.floor(diffDays / totalTopics);
+
+            topics.forEach((topic, index) => {
+                const startDate = new Date(today);
+                startDate.setDate(today.getDate() + (index * daysPerTopic));
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + daysPerTopic - 1);
+
+                const listItem = document.createElement('li');
+                listItem.className = 'p-4 rounded-lg bg-blue-50 border border-blue-200 shadow-sm';
+                listItem.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                        <h4 class="font-bold text-blue-700">${topic}</h4>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">
+                        **Approximate Time:** ${daysPerTopic} days (${~~(daysPerTopic * studyHours)} hours)
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">
+                        **Start Date:** ${startDate.toLocaleDateString()}
+                    </p>
+                `;
+                planList.appendChild(listItem);
+            });
+        });
+
+        // Alumni Connect Logic
+        const alumniAskBtn = document.getElementById('alumni-ask-btn');
+        const alumniQuestionInput = document.getElementById('alumni-question');
+        const alumniResponseContainer = document.getElementById('alumni-response-container');
+        const alumniResponseContent = document.getElementById('alumni-response-content');
+        const alumniLoadingSpinner = document.getElementById('alumni-loading-spinner');
+
+        alumniAskBtn.addEventListener('click', () => {
+            const questionText = alumniQuestionInput.value.trim();
+            if (!questionText) return;
+
+            alumniResponseContainer.classList.add('hidden');
+            alumniLoadingSpinner.classList.remove('hidden');
+
+            setTimeout(() => {
+                alumniLoadingSpinner.classList.add('hidden');
+                alumniResponseContainer.classList.remove('hidden');
+                const responseHtml = `
+                    <p class="text-sm text-gray-500 mb-2">Response from a JEE Alumnus</p>
+                    <p class="text-base font-medium text-gray-800">Hi there! That's a great question about ${questionText}.</p>
+                    <div class="mt-4 prose">
+                        <p>Based on my experience, the best way to approach this is to **focus on the foundational concepts** first. Don't rush into complex problems. I would recommend using **[Name of a book/resource]** for this topic and practicing problems from past year papers. Remember to stay consistent and not get demotivated!</p>
+                        <p class="text-xs text-gray-500 mt-4">— [Alumnus Name], IIT-Bombay, 2024</p>
+                    </div>
+                `;
+                alumniResponseContent.innerHTML = responseHtml;
+            }, 2000);
+        });
+
+        // Peer Community Logic
+        const chatWindow = document.getElementById('chat-window');
+        const chatInput = document.getElementById('chat-input');
+        const chatSendBtn = document.getElementById('chat-send-btn');
+
+        chatSendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function renderChatMessages() {
+            chatWindow.innerHTML = '';
+            chatMessages.forEach((msg, index) => {
+                const isSentByMe = (msg.user === "You");
+                const messageEl = document.createElement('div');
+                messageEl.className = `p-3 shadow-md w-fit max-w-[80%] break-words chat-bubble flex flex-col ${isSentByMe ? 'sent' : 'received'}`;
+
+                const userSpan = document.createElement('span');
+                userSpan.className = `text-xs font-semibold mb-1 ${isSentByMe ? 'text-indigo-100' : 'text-slate-500'}`;
+                userSpan.textContent = msg.user;
+
+                const textP = document.createElement('p');
+                textP.textContent = msg.text;
+
+                const timeSpan = document.createElement('span');
+                timeSpan.className = `text-[10px] mt-1 ${isSentByMe ? 'text-indigo-200 self-end' : 'text-slate-400 self-end'}`;
+                timeSpan.textContent = msg.timestamp;
+
+                messageEl.appendChild(userSpan);
+                messageEl.appendChild(textP);
+                messageEl.appendChild(timeSpan);
+                chatWindow.appendChild(messageEl);
+            });
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        function sendMessage() {
+            const messageText = chatInput.value.trim();
+            if (messageText) {
+                chatMessages.push({
+                    user: "You",
+                    text: messageText,
+                    timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                });
+                chatInput.value = '';
+                renderChatMessages();
+
+                // Simulate a response from a "peer"
+                setTimeout(() => {
+                    const peerResponse = `That's a great point! I agree about ${messageText.slice(0, 20)}...`;
+                    chatMessages.push({
+                        user: "Peer 3",
+                        text: peerResponse,
+                        timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                    });
+                    renderChatMessages();
+                }, 1500);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('dashboard');
+        });
+    </script>
+</body>
+
+</html>
